@@ -1,5 +1,15 @@
 <ion-view title="Welcome">
     <ion-content>
-    <div>Welcome</div>
+<!--
+    <div>
+        <a ng-click="allUsers()" ><button class="button button-block button-positive">Get all users</button></a>
+    </div>
+-->
+    <ul class="list" ng-if="usersRetrieved">
+        <li class="item" ng-repeat="user in users">
+            {{user.name}}
+            <a ng-click=""><button class="button button-block button-positive newProfileFriend">Add</button></a>
+        </li>
+    </ul>
     </ion-content>
 </ion-view>

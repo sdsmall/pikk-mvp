@@ -5,8 +5,13 @@
 // the 2nd parameter is an array of 'requires'
 var pikkApp = angular.module('starter', ['ionic','ionic.native','ui.router','ngStorage']);
 
-pikkApp.config(function($stateProvider, $urlRouterProvider){
+pikkApp.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider){
   $stateProvider
+    .state('test', {
+      url: '/test',
+      templateUrl: 'templates/test.html',
+      controller: 'TestController'
+    })
     .state('login', {
       url: '/login',
       templateUrl: 'templates/login.html',
@@ -22,11 +27,37 @@ pikkApp.config(function($stateProvider, $urlRouterProvider){
       templateUrl: 'templates/welcome.html',
       controller: 'WelcomeController'
     });
-  $urlRouterProvider.otherwise('/login');
+  //$urlRouterProvider.otherwise('/login');
+    $urlRouterProvider.otherwise('/test');
 });
 
-pikkApp
+pikkApp.controller("TestController", function($scope, $state, DbUserService) {
+    $scope.users = [];
+    $scope.usersRetrieved = false;
+    
+    $scope.$on('$ionicView.beforeEnter', function(){
+        $scope.allUsers();
+      });
+    
+    $scope.allUsers = function (){
+        console.log('allUsers called');
+        DbUserService.getAllUsers()
+            .then(function(response){
+                console.log(response);
+                $scope.users = response.message;
+                $scope.usersRetrieved = true;
+            }).catch(function(){
+                throw 'DbUserService get all users call error';
+            });
+    };
+    
+    $scope.skip = function(){
+        $state.go('profile');
+    };
+})
+
 .controller("LoginController", function($http, $q, $scope, $ionicPopup, $state, DbUserService, LocalUserService, GooglePlusUserService) {
+    
   $scope.userData;
     
   $scope.login = function () {
@@ -44,8 +75,14 @@ pikkApp
                 .then(function(response){
                     console.log(response);
                     if(response.newUser){
-                        $state.go('welcome');
+                        console.log('trying transitionto');
+                        //$state.go('welcome');
+                        $state.transitionTo(
+                            'welcome', 
+                            {}, 
+                            {reload: true, inherit: false, notify: true});
                     } else{
+                        console.log('made it to profile case');
                         $state.go('profile');
                     }
                 }).catch(function(){
@@ -56,29 +93,110 @@ pikkApp
             throw 'GooglePlusUserService login call error';
         });
   };
-    
-    $scope.testClick = function() {
-    console.log('test clicked');
-  };
+
 })
 
 
-.controller("ProfileController", function($scope) {
+.controller("ProfileController", function($scope, DbUserService) {
+    $scope.active = 'friends';
+     
+    $scope.setActive = function(type) {
+        $scope.active = type;
+    };
+    $scope.isActive = function(type) {
+        return type === $scope.active;
+    };
+    
+//    $scope.users = [];
+//    $scope.usersRetrieved = false;
+//    
+//    $scope.$on('$ionicView.beforeEnter', function(){
+//        $scope.allUsers();
+//      });
+    
+//    $scope.usersRetrieved = false;
+//    $scope.users = [];
+//    
+//    $scope.$on("$ionicView.beforeEnter", function(event, data){
+//        console.log('beforeEnter called');
+//        $scope.allUsers();
+//    });
+//    
+////    $scope.$on('$ionicView.beforeEnter', function(){
+////        console.log('beforeEnter called');
+////        $scope.allUsers();
+////    });
+//    
+//    $scope.allUsers = function (){
+//        console.log('allUsers called');
+//        DbUserService.getAllUsers()
+//            .then(function(response){
+//                console.log(response);
+//                $scope.users = response.message;
+//                $scope.usersRetrieved = true;
+//            }).catch(function(){
+//                throw 'DbUserService get all users call error';
+//            });
+//    };
 })
 
-.controller("WelcomeController", function($scope){
+.controller("WelcomeController", function($scope, $stateParams){
+    $scope.users = [];
+    $scope.usersRetrieved = false;
     
+    $scope.$on('$ionicView.beforeEnter', function(){
+        $scope.allUsers();
+      });
+    
+//    $scope.usersRetrieved = false;
+//    $scope.users = [];
+//    
+//    $scope.$on("$ionicView.beforeEnter", function(event, data){
+//        console.log('beforeEnter called');
+//        $scope.allUsers();
+//    });
+//    
+////    $scope.$on('$ionicView.beforeEnter', function(){
+////        console.log('beforeEnter called');
+////        $scope.allUsers();
+////    });
+//    
+    $scope.allUsers = function (){
+        console.log('allUsers called');
+        DbUserService.getAllUsers()
+            .then(function(response){
+                console.log(response);
+                $scope.users = response.message;
+                $scope.usersRetrieved = true;
+            }).catch(function(){
+                throw 'DbUserService get all users call error';
+            });
+    };
 });
 
 pikkApp.factory('DbUserService', function($http, $q){
     return {
         login: function(user){
+            console.log('trying login');
             var url = "http://localhost:3000/login";
             return $http.put(url,user)
                 .then(function(response){
                     console.log(response);
                     return response.data;
                 }, function(error){
+                    return $q.reject(error);
+                });
+        },
+        
+        getAllUsers: function(){
+            console.log('get all users called');
+            var url = "http://localhost:3000/users";
+            return $http.get(url)
+                .then(function(response){
+                    console.log(response);
+                    return response.data;
+                }, function(error){
+                    console.log(error);
                     return $q.reject(error);
                 });
         }
@@ -92,7 +210,10 @@ pikkApp.factory('LocalUserService', function($localStorage){
             var user = {
                 userID: userData.userId,
                 name: userData.displayName,
-                email: userData.email
+                email: userData.email,
+                friends: [],
+                outgoingFriendRequests: [],
+                incomingFriendRequests: []
             };
             
             $localStorage.googleUser = JSON.stringify(user);

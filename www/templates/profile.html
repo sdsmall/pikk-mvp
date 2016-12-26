@@ -1,5 +1,41 @@
 <ion-view title="Profile">
     <ion-content>
-    <div>Profile</div>
+<!--
+    <div >
+        <div >
+            <a ng-click=""><button class="button button-block button-positive">{{user.name}}</button></a>
+        </div>
+    </div>
+-->
+    <div class="item item-text-wrap">
+        <img src="https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/s120/photo.jpg" class="center profileAvatar"/>
+        <div class="text-center">
+            <p>John Doe</p>
+        </div>
+    </div>
+    <div>
+        <div class="button-bar">
+            <a class="button" ng-class="{'button-positive': isActive('friends')}" ng-click="setActive('friends')">
+                <i class="icon ion-ios-person"></i>
+                My Friends
+            </a>
+            <a class="button" ng-class="{'button-positive': isActive('outgoing')}" ng-click="setActive('outgoing')">
+                <i class="icon ion-ios-personadd"></i>
+                Outgoing
+            </a>
+            <a class="button" ng-class="{'button-positive': isActive('incoming')}" ng-click="setActive('incoming')">
+                <i class="icon ion-ios-personadd"></i>
+                Incoming
+            </a>
+        </div>
+    </div>
+<!--
+    <ul class="list" ng-if="usersRetrieved">
+        <li class="item" ng-repeat="user in users">
+            {{user.name}}
+            <a ng-click=""><button class="button button-block button-positive newProfileFriend">Add</button></a>
+        </li>
+    </ul>
+-->
     </ion-content>
 </ion-view>

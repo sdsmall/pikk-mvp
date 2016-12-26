@@ -1,0 +1,28 @@
+<ion-view title="Welcome">
+    <ion-content>
+<!--
+    <div>
+        <a ng-click="allUsers()" ><button class="button button-block button-positive">Get all users</button></a>
+    </div>
+-->
+    <div class="card">
+        <div class="item item-text-wrap">
+            Get your profile started - add some friends!
+        </div>
+    </div>
+    
+    <ion-scroll zooming="false" direction="y">
+       <ul class="list" ng-if="usersRetrieved">
+        <li class="item" ng-repeat="user in users">
+            {{user.name}}
+            <a ng-click=""><button class="button button-positive button-small newProfileAddFriend">Add <i class="icon ion-ios-personadd"></i></button></a>
+        </li>
+    </ul> 
+    </ion-scroll>
+    </ion-content>
+    <ion-footer-bar class="bar-positive">
+      <div class="buttons">
+        <button class="button" ng-click="skip()">Skip</button>
+      </div>
+    </ion-footer-bar>
+</ion-view>
